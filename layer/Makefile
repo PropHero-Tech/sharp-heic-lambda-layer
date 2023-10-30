@@ -48,23 +48,10 @@ libvips: installLib libheif libwebp
 	cd vips-$(VIPS_VERSION) && ./configure --prefix=$(PREFIX_PATH) && make V=0 && make install
 
 installLib:
-	yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-	yum install -y https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm
-	yum install -y http://rpms.remirepo.net/enterprise/remi-release-7.rpm
-	yum install -y yum-utils
-	yum-config-manager --enable remi
-	yum-config-manager --setopt=remi.priority=1 --save
-	yum install -y \
-		vips \
-		vips-heif
-	# yum install -y vips-devel # Error: libwebp7-devel conflicts with libwebp-devel-0.3.0-10.amzn2.x86_64
-	yum install -y vips-tools 
-	yum install -y yum-plugin-ovl && \
 	yum install -y \
 		glib2-devel \
 		poppler-glib-devel \
 		expat-devel \
-		libjpeg-devel \
 		libjpeg-turbo-devel \
 		libpng-devel \
 		giflib-devel \
