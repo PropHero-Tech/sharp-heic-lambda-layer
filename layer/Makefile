@@ -48,7 +48,7 @@ libvips: installLib libheif libwebp
 	cd vips-$(VIPS_VERSION) && meson setup build --prefix $(PREFIX_PATH) && cd build && meson compile && meson test && meson install
 
 installLib:
-	dnf groupinstall -y "Development Tools" -x system-rpm-config&& \
+	dnf groupinstall -y "Development Tools" -x system-rpm-config && \
 	dnf install -y \
 		glib2-devel \
 		poppler-glib-devel \
@@ -60,6 +60,7 @@ installLib:
 		librsvg2-devel \
 		libtiff-devel \
 		lcms2-devel \
+		gobject-introspection-devel \
 		cmake \
 		pkgconfig \
 		meson \
