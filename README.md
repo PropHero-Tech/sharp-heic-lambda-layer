@@ -5,9 +5,9 @@ AWS Lambda Layer providing [sharp](https://github.com/lovell/sharp) with HEIC (a
 
 ## Prerequisites
 
- * Docker
- * [SAM v1.33.0 or higher](https://github.com/awsdocs/aws-sam-developer-guide/blob/master/doc_source/serverless-sam-cli-install.md)
- * Node v16 (for v3.x)
+* Docker
+* [SAM v1.33.0 or higher](https://github.com/awsdocs/aws-sam-developer-guide/blob/master/doc_source/serverless-sam-cli-install.md)
+* Node v20 (for v4.x)
 
 ## Usage
 
@@ -15,7 +15,7 @@ Due to potential license concerns for the HEVC patent group, this repo can't be 
 
 But you can compile and deploy this lambda layer yourself at your own risk and use it wihin your own accounts. All you need is an S3 bucket to deploy the compiled code to (replace `your-s3-bucket` in the code snippet below). Please see the note below regarding the build process.
 
-It is recommended to automate this process using AWS CodeBuild. A buildspec file is provided in the repo. In that case you'll have to set the `SAM_BUCKET` environment variable in CodeBuild. For other environment variables see the table below. The base image that should be used is `aws/codebuild/amazonlinux2-x86_64-standard:4.0`.
+It is recommended to automate this process using AWS CodeBuild. A buildspec file is provided in the repo. In that case you'll have to set the `SAM_BUCKET` environment variable in CodeBuild. For other environment variables see the table below. The base image that should be used is `aws/codebuild/amazonlinux2-x86_64-standard:5.0`.
 
 A sample CloudFormation template is provided to setup the CodeBuild project, [sample-buildproject.yaml](sample-buildproject.yaml).
 
@@ -43,6 +43,7 @@ sam deploy --guided
 |      SAM_BUCKET |      yes |                         | Name of S3 Bucket to store layer              |
 |       S3_PREFIX |       no | sharp-heic-lambda-layer | Prefix within S3 Bucket to store layer        |
 |      STACK_NAME |       no | sharp-heic-lambda-layer | Name of CloudFormation stack                  |
+|      LAYER_NAME |       no |              sharp-heic | Name of layer                                 |
 |      AWS_REGION |       no |               us-east-1 | AWS Region to deploy to                       |
 | ORGANIZATION_ID |       no |                    none | ID of Organization to grant access to layer   |
 |       PRINCIPAL |       no |                 account | Principal to grant access to layer            |
@@ -60,25 +61,28 @@ Previously, some custom docker images were needed to build this layer. AWS has s
 ## Background
 This repo exists as it is rather painful to compile all libraries required to get sharp to work with HEIC/HEIF files in an AWS Lambda environment. The sharp repository has several [issues](https://github.com/lovell/sharp/issues) related to this.
 
-
 ### Layer contents
 This lambda layer contains the node module [sharp](https://github.com/lovell/sharp). But unlike a normal installation via `npm i sharp` this layer does not use the prebuilt sharp and libvips binaries. This layer compiles libwebp, libde265, libheif, libvips, and sharp from source in order to provide HEIC/HEIF (and webp) functionality in an AWS Lambda environment.
 
 ### Dependencies
 The following table lists the release version of this repo together with the version of each dependency. Patch versions are related to the build process or documentation and have the same dependencies as the minor version.
-| release |  sharp | libvips | libheif | libwebp | libde265 | nodejs |
-|---------|--------|---------|---------|---------|----------|--------|
-|   1.1.0 | 0.27.0 |  8.10.5 |  1.10.0 |   1.1.0 |    1.0.8 |     12 |
-|   1.2.0 | 0.28.2 |  8.10.6 |  1.12.0 |   1.2.0 |    1.0.8 |     12 |
-|   2.0.0 | 0.29.1 |  8.11.3 |  1.12.0 |   1.2.1 |    1.0.8 |     14 |
-|   3.0.0 | 0.30.7 |  8.12.2 |  1.12.0 |   1.2.4 |    1.0.8 |     16 |
-|   3.1.0 | 0.30.7 |  8.12.2 |  1.12.0 |   1.2.4 |    1.0.8 |     16 |
+| release |  sharp | libvips | libheif | libwebp | libde265  |   x265 | libaom | nodejs |
+|---------|--------|---------|---------|---------|-----------|--------|--------|--------|
+|   1.2.0 | 0.28.2 |  8.10.6 |  1.12.0 |   1.2.0 |    1.0.8  |      - |        |     12 |
+|   1.1.0 | 0.27.0 |  8.10.5 |  1.10.0 |   1.1.0 |    1.0.8  |      - |        |     12 |
+|   2.0.0 | 0.29.1 |  8.11.3 |  1.12.0 |   1.2.1 |    1.0.8  |      - |        |     14 |
+|   3.0.0 | 0.30.7 |  8.12.2 |  1.12.0 |   1.2.4 |    1.0.8  |      - |        |     16 |
+|   3.1.0 | 0.30.7 |  8.12.2 |  1.12.0 |   1.2.4 |    1.0.8  |      - |        |     16 |
+|   3.2.0 | 0.30.7 |  8.12.2 |  1.12.0 |   1.3.2 |    1.0.12 |      - |        |     16 |
+|   4.1.0 | 0.33.3 |  8.15.2 |  1.17.6 |   1.4.0 |    1.0.15 |    3.6 |        |     20 |
+|   4.1.3 | 0.33.3 |  8.15.2 |  1.17.6 |   1.4.0 |    1.0.15 |    3.6 |        |     20 |
+|   4.2.0 | 0.33.5 |  8.15.3 |  1.18.2 |   1.4.0 |    1.0.15 |    3.6 |  3.9.1 |     20 |
 
 ### CompatibleRuntimes
 - `nodejs12.x` (v1.x)
 - `nodejs14.x` (v2.x)
 - `nodejs16.x` (v3.x)
-
+- `nodejs20.x` (v4.x)
 
 ## Contributions
 If you would like to contribute to this repository, please open an issue or submit a PR.
@@ -87,9 +91,11 @@ You can also use the Sponsor button on the right if you'd like.
 
 ## Licenses
 - libheif and libde265 are distributed under the terms of the GNU Lesser General Public License. Copyright Struktur AG. See https://github.com/strukturag/libheif/blob/master/COPYING and https://github.com/strukturag/libde265/blob/master/COPYING for details.
+- x265 is free to use under the GNU GPL and is also available under a commercial license. See https://www.x265.org/ for details.
 - libwebp is Copyright Google Inc. See https://github.com/webmproject/libwebp/blob/master/COPYING for details.
 - sharp is licensed under the Apache License, Version 2.0. Copyright Lovell Fuller and contributors. See https://github.com/lovell/sharp/blob/master/LICENSE for details.
 - libvips is licensed under the LGPL 2.1+. See https://github.com/libvips/libvips/blob/master/COPYING for details.
+- libaom is subject to the terms of the BSD 2 Clause License and the Alliance for Open Media Patent License 1.0. See https://aomedia.googlesource.com/aom/#license-header
 - The remainder of the code in this repository is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 ## Related Resources
@@ -101,3 +107,4 @@ Visit [sharp.pixelplumbing.com](https://sharp.pixelplumbing.com/) for complete i
 - [libde265](https://github.com/strukturag/libde265)
 - [libwebp](https://github.com/webmproject/libwebp)
 - [libvips](https://github.com/libvips/libvips)
+- [libaom](https://aomedia.googlesource.com/aom/)
