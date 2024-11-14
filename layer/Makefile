@@ -40,17 +40,7 @@ libwebp:
 	curl -L https://github.com/webmproject/libwebp/archive/v$(WEBP_VERSION).tar.gz | tar zx
 	cd libwebp-$(WEBP_VERSION) && ./autogen.sh && ./configure --enable-libwebpmux --prefix=$(PREFIX_PATH) && make V=0 && make install
 
-x265:
-	yum install -y mercurial
-	yum install -y cmake
-	hg clone http://hg.videolan.org/x265
-	cd ./x265/build/linux && \
-		cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$(PREFIX_PATH) ../../source && \
-		make && \
-		make install
-	# PATH="/var/lang/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin:/usr/local/opt/sam-cli/bin:/sbin" ldconfig -n /opt/lib
-
-libde265: x265
+libde265:
 	# libde265
 	curl -L https://github.com/strukturag/libde265/releases/download/v$(LIBDE265_VERSION)/libde265-$(LIBDE265_VERSION).tar.gz | tar zx
 	cd libde265-$(LIBDE265_VERSION) && ./autogen.sh && ./configure --disable-dec265 --disable-sherlock265 --prefix=$(PREFIX_PATH) && make V=0 && make install
@@ -90,7 +80,6 @@ installLib:
 	dnf groupinstall -y "Development Tools" && \
 	dnf install -y \
 		glib2-devel \
-		poppler-glib-devel \
 		expat-devel \
 		libjpeg-turbo-devel \
 		libpng-devel \
@@ -104,6 +93,4 @@ installLib:
 		nasm \
 		pkg-config \
 		meson \
-		ninja-build \
-		libaom-devel \ 
-		libaom
+		ninja-build
